@@ -21,19 +21,29 @@ import org.json.simple.JSONObject;
 public class HostConnection {
 
     private static HostConnection instance;
-    private static String put = "PUT";
+    private static String post = "POST";
     private static String delete = "DELETE";
 
     private HostConnection() {
     }
-
+    
+    /**
+     * Get singleton instance
+     * @return 
+     */
     public static HostConnection getInstance() {
         if (instance == null) {
             instance = new HostConnection();
         }
         return instance;
     }
-
+    
+    /**
+     * Send repuest to host 
+     * @param index
+     * @param content
+     * @param type 
+     */
     private void sendRequest(String index, JSONArray content, String type) {
         //Convert JSONArray to String
         String contentStr = "";
@@ -44,15 +54,20 @@ public class HostConnection {
             }
         }
         try {
+            /* Create a connection with speficied url*/
             URL url = new URL(index);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(type);
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
-            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+            
+            /* Send the request*/
+            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(),"UTF-8");
             out.write(contentStr);
             out.close();
+            
+            /* Get response string*/
             InputStream is = connection.getInputStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             StringBuilder response = new StringBuilder();
@@ -69,11 +84,22 @@ public class HostConnection {
 
     }
 
+    /**
+     * To index content at the speficied url 
+     * @param index
+     * @param content 
+     */
     public void createIndex(String index, JSONArray content) {
-        sendRequest(index,content,put);
+        sendRequest(index,content,post);
     }
 
+    /**
+     * Remove the index content
+     * @param index 
+     */
     public void deleteIndex(String index) {
         sendRequest(index,null,delete);
     }
+    
+    
 }

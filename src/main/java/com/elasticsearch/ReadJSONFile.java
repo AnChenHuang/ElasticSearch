@@ -5,18 +5,28 @@
  */
 package com.elasticsearch;
 
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
+
 /**
  *
  * @author Chen
  */
 public class ReadJSONFile {
+    /**
+     * Read JSONFile and convert it to JSONArray
+     * @param path
+     * @return JSONArray
+     */
     public static JSONArray readJSONFile(String path) {
         JSONParser parser = new JSONParser();
+        
         try {
-            return (JSONArray) parser.parse(new FileReader(path));
+            /* Read JSON file with format UTF-8*/
+            return (JSONArray) parser.parse(new InputStreamReader(new FileInputStream(path), "UTF-8"));
         } catch (Exception e) {
             System.err.println(e);
         }
