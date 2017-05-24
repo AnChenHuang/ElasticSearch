@@ -22,6 +22,7 @@ public class HostConnection {
 
     private static HostConnection instance;
     private static String post = "POST";
+    private static String put = "PUT";
     private static String delete = "DELETE";
 
     private HostConnection() {
@@ -83,6 +84,45 @@ public class HostConnection {
         }
 
     }
+    
+    /**
+     * Send repuest to host 
+     * @param index
+     * @param content
+     * @param type 
+     */
+    private void mappingRequest(String index, String content, String type) {
+        
+        try {
+            /* Create a connection with speficied url*/
+            URL url = new URL(index);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod(type);
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            
+            /* Send the request*/
+            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(),"UTF-8");
+            out.write(content);
+            out.close();
+            
+            /* Get response string*/
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            System.out.println(response.toString());
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+    }
 
     /**
      * To index content at the speficied url 
@@ -91,6 +131,15 @@ public class HostConnection {
      */
     public void createIndex(String index, JSONArray content) {
         sendRequest(index,content,post);
+    }
+    
+    /**
+     * To index content at the speficied url 
+     * @param index
+     * @param content 
+     */
+    public void mappingIndex(String index, String content) {
+        mappingRequest(index,content,put);
     }
 
     /**

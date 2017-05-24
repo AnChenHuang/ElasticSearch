@@ -15,12 +15,11 @@ import org.json.simple.JSONArray;
 public class main {
 
     //private static final String path = "C:/Users/Chen/Desktop/App_WEB/dataset/";
-
     private static final String path = "C:/Users/an/Desktop/App_Web/Practica2/Datos/";
-    private static final File norteJanuaryFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06");
-    private static final String norteJanuaryPath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06/";
-    private static final File norteFebruaryFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes2_06");
-    private static final String norteFebruaryPath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes2_06/";
+    //private static final File norteJanuaryFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06");
+    //private static final String norteJanuaryPath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06/";
+    private static final File norteFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte");
+    private static final String nortePath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte";
     private static final String wineFile = "wine.json";
     private static final String innFile = "inn.json";
     private static final String maratonFile = "maraton.json";
@@ -30,21 +29,24 @@ public class main {
     private static final String innIndex = "http://localhost:9200/inn/reservations/_bulk";
     private static final String innDeleteIndex = "http://localhost:9200/inn";
     private static final String maratonIndex = "http://localhost:9200/maraton/competitors/_bulk";
+    private static final String maratonMapping = "http://localhost:9200/maraton";
     private static final String maratonDeleteIndex = "http://localhost:9200/maraton";
-    private static final String norteJanuaryIndex = "http://localhost:9200/norte/january/_bulk";
-    private static final String norteFebruaryIndex = "http://localhost:9200/norte/february/_bulk";
+    private static final String norteIndex = "http://localhost:9200/norte/articles/_bulk";
     private static final String norteDeleteIndex = "http://localhost:9200/norte";
 
     public static void main(String[] args) {
         connection = HostConnection.getInstance();
-       //createWineIndex();
-        //deleteWineIndex();
+         //deleteWineIndex();
+        //createWineIndex();
+
+        //deleteInnIndex();
         //createInnIndex();
-        //deleteInnIndex();
-        //createMaratonIndex();
-        //deleteInnIndex();
+        deleteMaratonIndex();
+        mappingMaraton();
+        createMaratonIndex();
+
         //createNorteMonthIndex(norteJanuaryFolder,norteJanuaryPath,norteJanuaryIndex);
-        createNorteMonthIndex(norteFebruaryFolder,norteFebruaryPath,norteFebruaryIndex);
+        //createNorteMonthIndex(norteFebruaryFolder, norteFebruaryPath, norteFebruaryIndex);
     }
 
     /*To index wine document*/
@@ -56,13 +58,13 @@ public class main {
         connection.createIndex(wineIndex, jsonArray);
     }
 
-     /*To delete wine document*/
+    /*To delete wine document*/
     private static void deleteWineIndex() {
 
         connection.deleteIndex(wineDeleteIndex);
     }
 
-     /*To index inn document*/
+    /*To index inn document*/
     private static void createInnIndex() {
 
         String innPath = path.concat(innFile);
@@ -70,14 +72,14 @@ public class main {
 
         connection.createIndex(innIndex, jsonArray);
     }
-    
-     /*To delete inn document*/
+
+    /*To delete inn document*/
     private static void deleteInnIndex() {
 
         connection.deleteIndex(innDeleteIndex);
     }
 
-     /*To index maraton document*/
+    /*To index maraton document*/
     private static void createMaratonIndex() {
 
         String maratonPath = path.concat(maratonFile);
@@ -86,24 +88,127 @@ public class main {
         connection.createIndex(maratonIndex, jsonArray);
     }
 
-     /*To delete maraton document*/
+    /*To delete maraton document*/
     private static void deleteMaratonIndex() {
 
         connection.deleteIndex(maratonDeleteIndex);
     }
 
-     /*To index a month documents of norte*/
-    private static void createNorteMonthIndex(File folder, String monthPath, String monthIndex) {
+    /*To index a month documents of norte*/
+    private static void createNorteMonthIndex() {
         // read all files of a month and convert its to a JSONArray
         JSONArray jsonArray = new JSONArray();
-        for (File fileEntry : folder.listFiles()) {
-            String dayPath = monthPath + fileEntry.getName();
+        for (File fileEntry : norteFolder.listFiles()) {
+            String monthPath = nortePath + fileEntry.getName();
+            
             jsonArray.addAll(ReadJSONFile.readJSONFile(dayPath));
         }
         connection.createIndex(monthIndex, jsonArray);
     }
-    
-    private static void deleteNorteIndex(){
+
+    private static void deleteNorteIndex() {
         connection.deleteIndex(norteDeleteIndex);
+    }
+
+    private static void mappingMaraton() {
+        String mapping = "{\n"
+                + "    \"mappings\": {\n"
+                + "      \"competitors\": {\n"
+                + "        \"properties\": {\n"
+                + "          \"Age\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"BIBNumber\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"FirstName\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"Group\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"GroupPlace\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"LasName\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"Pace\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"Place\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"Sex\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"State\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"Time\": {\n"
+                + "            \"type\": \"date\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            },\n"
+                + "            \"format\": \"H:mm:ss\"\n"
+                + "          },"
+                + "          \"Town\": {\n"
+                + "            \"type\": \"string\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    }\n"
+                + "  }";
+        connection.mappingIndex(maratonMapping, mapping);
+    }
+    
+     private static void mappingNorte() {
+        String mapping = "";
+        connection.mappingIndex(maratonMapping, mapping);
     }
 }
