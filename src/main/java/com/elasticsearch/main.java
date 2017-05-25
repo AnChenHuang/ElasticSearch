@@ -14,12 +14,12 @@ import org.json.simple.JSONArray;
  */
 public class main {
 
-    //private static final String path = "C:/Users/Chen/Desktop/App_WEB/dataset/";
-    private static final String path = "C:/Users/an/Desktop/App_Web/Practica2/Datos/";
+    private static final String path = "C:/Users/Chen/Desktop/App_WEB/dataset/";
+    //private static final String path = "C:/Users/an/Desktop/App_Web/Practica2/Datos/";
     //private static final File norteJanuaryFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06");
     //private static final String norteJanuaryPath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06/";
-    private static final File norteFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte");
-    private static final String nortePath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte";
+    private static final File norteFolder = new File("C:/Users/Chen/Desktop/App_WEB/dataset/norte");
+    //private static final String nortePath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte";
     private static final String wineFile = "wine.json";
     private static final String innFile = "inn.json";
     private static final String maratonFile = "maraton.json";
@@ -33,6 +33,7 @@ public class main {
     private static final String maratonDeleteIndex = "http://localhost:9200/maraton";
     private static final String norteIndex = "http://localhost:9200/norte/articles/_bulk";
     private static final String norteDeleteIndex = "http://localhost:9200/norte";
+    private static final String norteMapping = "http://localhost:9200/norte";
 
     public static void main(String[] args) {
         connection = HostConnection.getInstance();
@@ -41,12 +42,15 @@ public class main {
 
         //deleteInnIndex();
         //createInnIndex();
-        deleteMaratonIndex();
-        mappingMaraton();
-        createMaratonIndex();
-
-        //createNorteMonthIndex(norteJanuaryFolder,norteJanuaryPath,norteJanuaryIndex);
-        //createNorteMonthIndex(norteFebruaryFolder, norteFebruaryPath, norteFebruaryIndex);
+        
+        //deleteMaratonIndex();
+        //mappingMaraton();
+        //createMaratonIndex();
+        
+        deleteNorteIndex();
+        mappingNorte();
+        createNorteIndex();
+        
     }
 
     /*To index wine document*/
@@ -95,15 +99,18 @@ public class main {
     }
 
     /*To index a month documents of norte*/
-    private static void createNorteMonthIndex() {
+    private static void createNorteIndex() {
         // read all files of a month and convert its to a JSONArray
         JSONArray jsonArray = new JSONArray();
         for (File fileEntry : norteFolder.listFiles()) {
-            String monthPath = nortePath + fileEntry.getName();
-            
-            jsonArray.addAll(ReadJSONFile.readJSONFile(dayPath));
+            String monthPath = fileEntry.getAbsolutePath();
+            File monthFolder = new File(monthPath);
+            for (File dayFile : monthFolder.listFiles()) {
+                String dayPath = dayFile.getAbsolutePath();
+                jsonArray.addAll(ReadJSONFile.readJSONFile(dayPath));
+            }
         }
-        connection.createIndex(monthIndex, jsonArray);
+        connection.createIndex(norteIndex, jsonArray);
     }
 
     private static void deleteNorteIndex() {
@@ -206,9 +213,80 @@ public class main {
                 + "  }";
         connection.mappingIndex(maratonMapping, mapping);
     }
-    
-     private static void mappingNorte() {
-        String mapping = "";
-        connection.mappingIndex(maratonMapping, mapping);
+
+    private static void mappingNorte() {
+        String mapping = "{\n"
+                + "    \"mappings\": {\n"
+                + "      \"articles\": {\n"
+                + "        \"properties\": {\n"
+                + "          \"autor\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"cuerpo\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"docid\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"fecha\": {\n"
+                + "            \"type\": \"date\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            },\n"
+                + "            \"format\" : \"dd-MM-yyyy\"\n"
+                + "          },\n"
+                + "          \"resumen\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"seccion\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          },\n"
+                + "          \"titulo\": {\n"
+                + "            \"type\": \"text\",\n"
+                + "            \"fields\": {\n"
+                + "              \"keyword\": {\n"
+                + "                \"type\": \"keyword\",\n"
+                + "                \"ignore_above\": 256\n"
+                + "              }\n"
+                + "            }\n"
+                + "          }\n"
+                + "        }\n"
+                + "      }\n"
+                + "    }\n"
+                + "  }";
+        connection.mappingIndex(norteMapping, mapping);
     }
 }
