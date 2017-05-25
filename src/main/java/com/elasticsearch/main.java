@@ -15,11 +15,7 @@ import org.json.simple.JSONArray;
 public class main {
 
     private static final String path = "C:/Users/Chen/Desktop/App_WEB/dataset/";
-    //private static final String path = "C:/Users/an/Desktop/App_Web/Practica2/Datos/";
-    //private static final File norteJanuaryFolder = new File("C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06");
-    //private static final String norteJanuaryPath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte/mes1_06/";
     private static final File norteFolder = new File("C:/Users/Chen/Desktop/App_WEB/dataset/norte");
-    //private static final String nortePath = "C:/Users/an/Desktop/App_Web/Practica2/Datos/norte";
     private static final String wineFile = "wine.json";
     private static final String innFile = "inn.json";
     private static final String maratonFile = "maraton.json";
@@ -37,19 +33,19 @@ public class main {
 
     public static void main(String[] args) {
         connection = HostConnection.getInstance();
-         //deleteWineIndex();
-        //createWineIndex();
+        deleteWineIndex();
+        createWineIndex();
 
-        //deleteInnIndex();
-        //createInnIndex();
+        deleteInnIndex();
+        createInnIndex();
         
         //deleteMaratonIndex();
         //mappingMaraton();
         //createMaratonIndex();
         
-        deleteNorteIndex();
-        mappingNorte();
-        createNorteIndex();
+        //deleteNorteIndex();
+        //mappingNorte();
+        //createNorteIndex();
         
     }
 
@@ -112,11 +108,16 @@ public class main {
         }
         connection.createIndex(norteIndex, jsonArray);
     }
-
+    /**
+     * To delete norte document
+     */
     private static void deleteNorteIndex() {
         connection.deleteIndex(norteDeleteIndex);
     }
 
+    /**
+     * mapping for maraton index
+     */
     private static void mappingMaraton() {
         String mapping = "{\n"
                 + "    \"mappings\": {\n"
@@ -214,6 +215,9 @@ public class main {
         connection.mappingIndex(maratonMapping, mapping);
     }
 
+    /**
+     * mapping for norte index
+     */
     private static void mappingNorte() {
         String mapping = "{\n"
                 + "    \"mappings\": {\n"
